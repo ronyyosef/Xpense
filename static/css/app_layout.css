@@ -41,7 +41,14 @@ body {
   vertical-align: top;
   position: relative;
 }
-
-.topnav {
-  z-index: 1000;
+.container {
+  width: 100%;
+  text-align: center;
+  padding-right: var(--bs-gutter-x, 1rem);
+  padding-left: var(--bs-gutter-x, 1rem);
+  margin-right: auto;
+  margin-left: auto;
+}
+.fw-bolder {
+  font-weight: 500 !important;
 }

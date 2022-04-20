@@ -1,51 +1,31 @@
-from django.http import HttpResponse
-from house.models import Country, House, City
 from expenses.models import Expenses
+from house.constants import HOME_PAGE_ROUTE, GLOBAL_PAGE_ROUTE
+from .models import House
 from django.shortcuts import render
-from django.db.models import Sum
-from django.utils import timezone
 
 
 def home_page(request):
-    return render(request, "home.html")
+    return render(request, HOME_PAGE_ROUTE)
 
 
 def global_page(request):
-    country = Country.objects.get(name="Israel")
-    house = House.create_house(
-        'House 1',
-        True,
-        Country.objects.get(name="Israel"),
-        City.objects.get(name="Tel Aviv", country=country),
-        'Teacher',
-        'Teacher',
-        100,
-        1,
-    )
-
-    Expenses.create_expense(
-        house_name=house, amount='2500', date=timezone.now(), category='Rent', description="description"
-    )
-
-    all_houses = House.objects.all()
-    categories_amounts = Expenses.objects.order_by().values('category').annotate(total=Sum("amount"))
-
+    houses = House.objects.all()
+    categories_amounts = Expenses.average_expenses_of_houses_by_categories(houses)
     context = {
-        'all_houses': all_houses,
+        'all_houses': houses,
         "categories": [category.get('category') for category in categories_amounts],
-        "amounts": [amount.get('total') for amount in categories_amounts],
+        "amounts": [amount.get('average') for amount in categories_amounts],
     }
-    return render(request, 'global.html', context)
+    return render(request, GLOBAL_PAGE_ROUTE, context)
 
 
 def house_login(request):
-    return HttpResponse('house login')
+    raise NotImplementedError
 
 
 def house_view(request, house_id):
-    return HttpResponse(f'this is the house view for house {house_id}')
+    raise NotImplementedError
 
 
 def add_house(request):
-    post = request.POST["id"]
-    return HttpResponse(f"try to update data for house POST PARAMETERS {'None' if post is None else post}")
+    raise NotImplementedError
