@@ -1,21 +1,23 @@
+
 from django import forms
-from house.models import House, City
+
+from house.models import House, Job
 
 
 class HouseForm(forms.ModelForm):
     class Meta:
         model = House
-        fields = ('name', 'country', 'city', 'income', 'children', 'parent_profession_1', 'parent_profession_2')
+        fields = ('country', 'city', 'children')
+
+    jobs = Job.choices.copy()
+    jobs.append((None, '---------'))
+    parent_profession_1 = forms.ChoiceField(choices=jobs, required=False)
+    parent_profession_2 = forms.ChoiceField(choices=jobs, required=False)
+    highest_income = forms.IntegerField(label='highest income', required=False)
+    lowest_income = forms.IntegerField(label='lowest income', required=False)
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['city'].queryset = City.objects.none()
-
-        if 'country' in self.data:
-            try:
-                country_id = int(self.data.get('country'))
-                self.fields['city'].queryset = City.objects.filter(country_id=country_id).order_by('name')
-            except (ValueError, TypeError):
-                pass  # invalid input from the client; ignore and fallback to empty City queryset
-        elif self.instance.pk:
-            self.fields['city'].queryset = self.instance.country.city_set.order_by('name')
+        super(HouseForm, self).__init__(*args, **kwargs)
+        self.fields['country'].required = False
+        self.fields['city'].required = False
+        self.fields['children'].required = False
